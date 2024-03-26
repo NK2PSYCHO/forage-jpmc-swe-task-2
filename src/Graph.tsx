@@ -14,8 +14,26 @@ interface IProps {
  * Perspective library adds load to HTMLElement prototype.
  * This interface acts as a wrapper for Typescript compiler.
  */
-interface PerspectiveViewerElement {
-  load: (table: Table) => void,
+/**
+ * The PerspectiveViewerElement interface extends the HTMLElement interface, 
+ * which represents any HTML element. This interface is specific to the 
+ * Perspective library, which is used for visualizing data.
+ *
+ * The Perspective library extends the HTMLElement prototype to include a 
+ * 'load' method. This method is used to load a Table object into the 
+ * Perspective viewer. However, TypeScript does not recognize this additional 
+ * method on the HTMLElement by default.
+ *
+ * Therefore, we declare this interface to inform TypeScript about the 'load' 
+ * method. This way, TypeScript knows that we can call 'load' on an 
+ * HTMLElement when it's used as a Perspective viewer.
+ *
+ * The 'load' method takes a Table object as a parameter. The Table object 
+ * represents a data table in the Perspective viewer.
+ */
+interface PerspectiveViewerElement extends HTMLElement {
+  load: (table: Table) => void,// This is a method declaration in the interface. It indicates that any object of type 
+  // PerspectiveViewerElement should have a method named 'load' which takes an argument of type 'Table' and returns nothing (void).
 }
 
 /**
@@ -32,8 +50,45 @@ class Graph extends Component<IProps, {}> {
 
   componentDidMount() {
     // Get element to attach the table from the DOM.
-    const elem: PerspectiveViewerElement = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
+    /* 
+ * Get the first 'perspective-viewer' element from the DOM. The 'as unknown as PerspectiveViewerElement' 
+ * part is a type assertion in TypeScript. It's used here because 'getElementsByTagName' returns an array 
+ * of HTMLElements, but we know that our element is a PerspectiveViewerElement.
+ */
+    const elem = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
 
+/* 
+ * Set the view attribute to 'y_line'. This determines the type of graph that will be displayed.
+ */
+    elem.setAttribute('view', 'y_line');
+
+/* 
+ * Set the column-pivots attribute to '["stock"]'. This determines the columns that will be used for 
+ * pivoting in the graph.
+ */
+    elem.setAttribute('column-pivots','["stock"]');
+
+/* 
+ * Set the row-pivots attribute to '["timestamp"]'. This determines the rows that will be used for 
+ * pivoting in the graph.
+ */
+    elem.setAttribute('row-pivots', '["timestamp"]');
+
+/* 
+ * Set the columns attribute to '["top ask price"]'. This determines the data columns that will be 
+ * displayed in the graph.
+ */
+    elem.setAttribute('columns', '["top ask price"]');
+
+/* 
+ * Set the aggregates attribute to a JSON string. This determines the aggregate functions that will be 
+ * used for each column when pivoting.
+ */
+    elem.setAttribute('aggregates',`
+            {"stock": "distinct count",
+              "top_ask_price": "avg",
+              "top bid price": "avg",
+              "timestamp": "distinct count"}`);
     const schema = {
       stock: 'string',
       top_ask_price: 'float',
